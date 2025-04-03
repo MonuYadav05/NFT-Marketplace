@@ -41,18 +41,12 @@ contract NFTMARKETPLACE is ERC721URIStorage {
         return owner;
     }
 
-    function getLatestIdToListedToken()
-        public
-        view
-        returns (ListedToken memory)
-    {
-        uint256 latestId = _tokenIds;
+    function getLatestIdToListedToken() public view returns (ListedToken memory){ 
+         uint256 latestId = _tokenIds;
         return idToListedToken[latestId];
     }
 
-    function getListedForTokenId(
-        uint256 _tokenId
-    ) public view returns (ListedToken memory) {
+    function getListedForTokenId(uint256 _tokenId) public view returns (ListedToken memory) {
         return idToListedToken[_tokenId];
     }
 

@@ -1,5 +1,5 @@
 {
-  "address": "0x04A6baE1435Ae6D2bC78e7C810b237e948E0338c",
+  "contractAddress": "0x04A6baE1435Ae6D2bC78e7C810b237e948E0338c",
   "abi": [
     "constructor()",
     "event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)",
