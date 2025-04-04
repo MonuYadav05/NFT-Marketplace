@@ -31,7 +31,7 @@ export default function RootLayout({
       >
         <Providers>
           <Navbar />
-          <main className="min-h-calc[100vh-4rem] bg-background">{children}</main>
+          <main className="min-h-calc[100vh-4rem] mx-[100px] bg-background">{children}</main>
         </Providers>
 
       </body>

@@ -36,9 +36,9 @@ export function Navbar() {
                             <ShoppingBag className="h-4 w-4" />
                             <span>Marketplace</span>
                         </Link>
-                        <Link href="/community" className="flex items-center space-x-2 text-muted-foreground hover:text-primary">
+                        <Link href="/profile" className="flex items-center space-x-2 text-muted-foreground hover:text-primary">
                             <Users className="h-4 w-4" />
-                            <span>Community</span>
+                            <span>Profile</span>
                         </Link>
                     </div>
                 </div>

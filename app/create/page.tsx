@@ -30,16 +30,16 @@ export default function Create() {
         setNftData((prev: any) => ({ ...prev, [name]: value }));
     };
 
-    useEffect(() => {
-        async function getAllNFTs() {
-            const nfts = await getAllNfts();
-            const myNfts = await getMyNfts();
-            console.log("all nfts", nfts);
-            console.log("My nfts", myNfts);
-            console.log(isConnected);
-        }
-        getAllNFTs();
-    }, [isConnected]);
+    // useEffect(() => {
+    //     async function getAllNFTs() {
+    //         const nfts = await getAllNfts();
+    //         const myNfts = await getMyNfts();
+    //         console.log("all nfts", nfts);
+    //         console.log("My nfts", myNfts);
+    //         console.log(isConnected);
+    //     }
+    //     getAllNFTs();
+    // }, [isConnected]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -66,7 +66,6 @@ export default function Create() {
             const imageUrl = await uploadFileToIpfs(file);
             if (!imageUrl || !imageUrl.success) return;
 
-            console.log(imageUrl);
             const nftMetadata = {
                 name: nftData.name,
                 description: nftData.description,
@@ -79,7 +78,6 @@ export default function Create() {
                 toast.error("Error uploading metadata to IPFS");
                 return;
             };
-            console.log(metadataUrl);
 
             const response = await createNft(metadataUrl.pinataURL, nftData.price);
             if (!response || !response.success) {
@@ -187,8 +185,8 @@ export default function Create() {
                     </div>
 
                     {preview && (
-                        <div className="mt-4 space-y-2">
-                            <p className="font-semibold">{nftData.name || "Untitled NFT"}</p>
+                        <div className="mt-2 space-y-2">
+                            <p className="font-semibold text-lg">{nftData.name || "Untitled NFT"}</p>
                             <p className="text-sm text-gray-500">
                                 {nftData.description || "No description"}
                             </p>

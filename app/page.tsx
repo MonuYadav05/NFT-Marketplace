@@ -1,9 +1,24 @@
+"use client"
+
 import Hero from "@/components/homepage/Hero";
 import { Card } from "@/components/ui/card";
+import { useContract } from "@/hooks/useContract";
 import Image from "next/image";
+import { useEffect } from "react";
 
 
 export default function Home() {
+  const { address, updateListingPrice } = useContract();
+
+  useEffect(() => {
+    if (address) {
+      (async () => {
+        await updateListingPrice();
+      })();
+
+    }
+  }, [address])
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}

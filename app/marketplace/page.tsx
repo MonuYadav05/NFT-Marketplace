@@ -6,83 +6,71 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import Image from "next/image";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { useContract } from "@/hooks/useContract";
 import axios from "axios";
 import { toast } from "sonner";
-
-
-const mockNFTs = [
-    {
-        id: 1,
-        name: "Cosmic Creature #1",
-        description: "A mystical being from the cosmos",
-        image: "https://images.unsplash.com/photo-1634973357973-f2ed2657db3c",
-        price: "0.5",
-        creator: "0x1234...5678",
-        likes: 123,
-    },
-    {
-        id: 2,
-        name: "Digital Dreams #42",
-        description: "Surreal digital artwork",
-        image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe",
-        price: "0.8",
-        creator: "0x8765...4321",
-        likes: 89,
-    },
-    {
-        id: 3,
-        name: "Pixel Punk #007",
-        description: "Retro-inspired pixel art",
-        image: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e",
-        price: "0.3",
-        creator: "0x9876...1234",
-        likes: 245,
-    },
-];
+import { ethers } from "ethers";
 
 export default function ExplorePage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [sortBy, setSortBy] = useState("recent");
     const [priceRange, setPriceRange] = useState("all");
     const { getAllNfts } = useContract()
-    const [NFTS, setNFTS] = useState<any>([]);
+    const [NFTS, setNFTS] = useState<any>(null);
+    const [filteredNFTs, setFilteredNFTs] = useState<any>([]);
 
     const fetchMetadata = async () => {
         try {
             const allNfts = await getAllNfts();
-            console.log(allNfts);
+            // console.log(allNfts);
             if (!allNfts || !Array.isArray(allNfts)) {
                 toast.error("Error fetching NFTs");
                 return [];
             };
             const updatedAllNfts = await Promise.all(
                 allNfts.map(async (nft: any) => {
-                    const metadata = await axios.get(nft.tokenURI);
-                    console.log("metadata", metadata);
-                    return { ...nft, metadata: metadata.data };
+                    const response = await axios.get(nft.tokenURI);
+                    const firstKey = Object.keys(response.data)[0]; // Get the incorrect key
+                    const metadata = JSON.parse(firstKey); // Parse it into a proper object
+
+                    // console.log("Parsed Metadata:", metadata);
+                    return { ...nft, metadata: metadata };
                 })
             )
             return updatedAllNfts;
         } catch (err) {
             console.log(err);
+            return [];
         }
     }
 
     useEffect(() => {
         (async () => {
             const allNfts = await fetchMetadata();
-            console.log(allNfts)
             setNFTS(allNfts);
+            // console.log(allNfts)
         })();
 
     }, [])
 
-    const filteredNFTs = mockNFTs.filter((nft) =>
-        nft.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    console.log(sortBy, priceRange, searchTerm);
+
+    useEffect(() => {
+        if (NFTS) {
+            const filteredNFTs = NFTS.filter((nft: any) => {
+                return nft.metadata && nft.metadata.name && nft?.metadata?.name.toLowerCase().includes(searchTerm.toLowerCase())
+            }
+            );
+            setFilteredNFTs(filteredNFTs);
+        }
+    }, [NFTS, searchTerm]);
+
+
+    if (!NFTS) return <div className="flex items-center justify-center gap-3 min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin" />
+        <span className="text-xl">Fetching NFTs from the Blockchain...</span>
+    </div>
+
     return (
         <div className="container mx-auto py-8">
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -128,25 +116,25 @@ export default function ExplorePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredNFTs.map((nft) => (
+                {filteredNFTs.map((nft: any) => (
                     <Card key={nft.id} className="overflow-hidden group">
                         <div className="aspect-square relative">
                             <Image
-                                src={nft.image}
-                                alt={nft.name}
+                                src={nft?.metadata?.image}
+                                alt={nft?.metadata?.name}
                                 fill
                                 className="object-cover group-hover:scale-105 transition-transform duration-200"
                             />
                         </div>
-                        <div className="p-4">
-                            <h3 className="font-bold text-lg mb-1">{nft.name}</h3>
+                        <div className="p-4 pt-0">
+                            <h3 className="font-bold text-lg mb-1">{nft?.metadata?.name}</h3>
                             <p className="text-sm text-muted-foreground mb-2">
-                                {nft.description}
+                                {nft?.metadata?.description}
                             </p>
                             <div className="flex justify-between items-center">
                                 <div>
                                     <p className="text-sm text-muted-foreground">Price</p>
-                                    <p className="font-bold">{nft.price} ETH</p>
+                                    <p className="font-bold">{ethers.formatEther(nft.price)} ETH</p>
                                 </div>
                                 <Button>
                                     Buy Now

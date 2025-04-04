@@ -131,12 +131,33 @@ export const useContract = () => {
     }
   }
 
+  const updateListingPrice = async () => {
+    if (!contractAddress || !address) {
+      toast.error('Contract address or address not found')
+      return
+    }
+
+    try {
+      const response = await writeContract(rainbowConfig, {
+        abi,
+        address: contractAddress as `0x${string}`,
+        functionName: 'updateListPrice',
+        args: [parseEther('0.0001')]
+      })
+      console.log(response)
+      console.log('updateListingPrice')
+    } catch (error) {
+      console.log('error in updating listing price', error)
+    }
+  }
+
   return {
     address,
     isConnected,
     getAllNfts,
     getListPrice,
     createNft,
-    getMyNfts
+    getMyNfts,
+    updateListingPrice
   }
 }
