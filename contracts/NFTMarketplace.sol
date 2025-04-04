@@ -103,9 +103,11 @@ contract NFTMARKETPLACE is ERC721URIStorage {
         }
 
         ListedToken[] memory myTokens = new ListedToken[](ownedCount);
+        uint256 currentIndex = 0;
         for (uint i = 0; i < nftCount; i++) {
             if (tokens[i].owner == msg.sender || tokens[i].seller == msg.sender) {
-                myTokens[i] = tokens[i];
+                myTokens[currentIndex] = tokens[i];
+                currentIndex++;
             }
         }
         return myTokens;

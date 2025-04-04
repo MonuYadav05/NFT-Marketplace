@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { Loader2, Upload } from "lucide-react";
 import { usePinata } from "@/hooks/usePinata";
+import { useContract } from "@/hooks/useContract";
+import { connect } from '@wagmi/core'
 
 export default function Create() {
     const [isUploading, setIsUploading] = useState(false);
@@ -20,27 +22,29 @@ export default function Create() {
     });
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string>("");
-    const { uploadFileToIpfs, uploadJsonToIpfs } = usePinata();
+    const { uploadFileToIpfs, uploadJsonToIpfs, } = usePinata();
+    const { getAllNfts, getListPrice, createNft, isConnected, getMyNfts } = useContract();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setNftData((prev: any) => ({ ...prev, [name]: value }));
     };
 
-    // useEffect(() => {
-    //     const data = {
-    //         name: "nft1",
-    //         description: "nftData.description",
-    //         price: "0.03",
-    //     };
-    //     uploadJsonToIpfs(JSON.stringify(data));
-    // }, []);
+    useEffect(() => {
+        async function getAllNFTs() {
+            const nfts = await getAllNfts();
+            const myNfts = await getMyNfts();
+            console.log("all nfts", nfts);
+            console.log("My nfts", myNfts);
+            console.log(isConnected);
+        }
+        getAllNFTs();
+    }, [isConnected]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         setFile(file);
-        await uploadFileToIpfs(file);
         setPreview(URL.createObjectURL(file));
     }
 
@@ -50,6 +54,12 @@ export default function Create() {
             toast.error("Please select an image file",);
             return;
         }
+        connect
+        if (!isConnected) {
+            toast.error("Please connect your wallet first!",);
+            return;
+        }
+
         try {
             setIsUploading(true);
             //upload image ot ipfs pinata
@@ -64,17 +74,22 @@ export default function Create() {
                 price: nftData.price,
             }
 
-            try {
-                const metadataUrl = await uploadJsonToIpfs(JSON.stringify(nftMetadata));
-                if (!metadataUrl || !metadataUrl.success) return;
-                console.log(metadataUrl);
-            } catch (err) {
-                console.log(err);
+            const metadataUrl = await uploadJsonToIpfs(JSON.stringify(nftMetadata));
+            if (!metadataUrl.pinataURL || !metadataUrl.success) {
                 toast.error("Error uploading metadata to IPFS");
                 return;
-            }
+            };
+            console.log(metadataUrl);
 
-            // call fucntion in contract to create token
+            const response = await createNft(metadataUrl.pinataURL, nftData.price);
+            if (!response || !response.success) {
+                toast.error("Error creating NFT in page");
+                return;
+            }
+            setNftData({ name: "", description: "", price: "" });
+            setFile(null);
+            setPreview("");
+
         } catch (err) {
             console.log("Error uploading file to IPFS", err);
         } finally {
@@ -142,7 +157,7 @@ export default function Create() {
                             {isUploading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Uploading to IPFS... Dont GO Anywhere
+                                    Createing NFT...
                                 </>
                             ) : (
                                 <>
