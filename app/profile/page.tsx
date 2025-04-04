@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useContract } from "@/hooks/useContract";
 import axios from 'axios';
 import { NftCard } from "@/components/NftCard";
+import { ethers } from "ethers";
 
 // Mock user data
 const userData = {
@@ -26,14 +27,14 @@ export default function ProfilePage() {
 
     const fetchMetadata = async () => {
         try {
-            const allNfts = await getMyNfts();
-            // console.log(allNfts);
-            if (!allNfts || !Array.isArray(allNfts)) {
+            const myNfts = await getMyNfts();
+            // console.log(myNfts);
+            if (!myNfts || !Array.isArray(myNfts)) {
                 toast.error("Error fetching NFTs");
                 return [];
             };
-            const updatedAllNfts = await Promise.all(
-                allNfts.map(async (nft: any) => {
+            const updatedmyNfts = await Promise.all(
+                myNfts.map(async (nft: any) => {
                     const response = await axios.get(nft.tokenURI);
                     const firstKey = Object.keys(response.data)[0]; // Get the incorrect key
                     const metadata = JSON.parse(firstKey); // Parse it into a proper object
@@ -42,7 +43,7 @@ export default function ProfilePage() {
                     return { ...nft, metadata: metadata };
                 })
             )
-            return updatedAllNfts;
+            return updatedmyNfts;
         } catch (err) {
             console.log(err);
             return [];
@@ -52,9 +53,9 @@ export default function ProfilePage() {
     useEffect(() => {
         if (address) {
             (async () => {
-                const allNfts = await fetchMetadata();
-                setNFTS(allNfts);
-                console.log(allNfts)
+                const myNfts = await fetchMetadata();
+                setNFTS(myNfts);
+                console.log(myNfts)
             })();
         }
 
@@ -67,6 +68,13 @@ export default function ProfilePage() {
         toast("Wallet address copied to clipboard",);
     };
 
+    const totalprice = (NFTS: any) => {
+        let total = BigInt(0);
+        NFTS.forEach((nft: any) => {
+            total += BigInt(nft.price);
+        });
+        return total;
+    }
 
     return (
         <div className="container mx-auto py-8">
@@ -94,8 +102,8 @@ export default function ProfilePage() {
                                 <p className="text-sm text-muted-foreground">NFTs</p>
                             </div>
                             <div className="text-center">
-                                <p className="font-bold">{userData.volumeTraded}</p>
-                                <p className="text-sm text-muted-foreground">Volume</p>
+                                <p className="font-bold">{NFTS == null ? "..." : ethers.formatEther(totalprice(NFTS).toString())}</p>
+                                <p className="text-sm text-muted-foreground">Total Price</p>
                             </div>
                         </div>
                         <div className="w-full mt-4">

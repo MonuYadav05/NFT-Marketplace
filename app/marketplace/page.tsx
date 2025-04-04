@@ -11,14 +11,17 @@ import { useContract } from "@/hooks/useContract";
 import axios from "axios";
 import { toast } from "sonner";
 import { ethers } from "ethers";
+import { useRouter } from "next/navigation";
 
 export default function ExplorePage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [sortBy, setSortBy] = useState("recent");
     const [priceRange, setPriceRange] = useState("all");
-    const { getAllNfts } = useContract()
+    const { getAllNfts, address, buyNFT } = useContract()
     const [NFTS, setNFTS] = useState<any>(null);
     const [filteredNFTs, setFilteredNFTs] = useState<any>([]);
+    const [buyingNFT, setBuyingNFT] = useState(null);
+    const router = useRouter();
 
     const fetchMetadata = async () => {
         try {
@@ -65,6 +68,28 @@ export default function ExplorePage() {
         }
     }, [NFTS, searchTerm]);
 
+    const handleBuyNft = async (nft: any) => {
+        setBuyingNFT(nft.tokenId);
+        try {
+            const response = await buyNFT(nft.tokenId, nft.price);
+            const stringfy = (JSON.stringify(response));
+            console.log(stringfy);
+            // @ts-ignore
+            if (response && response?.success) {
+                setBuyingNFT(null);
+                router.push("/profile");
+            }
+            else {
+                // @ts-ignore
+                toast.error(response?.error);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+        finally {
+            setBuyingNFT(null);
+        }
+    }
 
     if (!NFTS) return <div className="flex items-center justify-center gap-3 min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin" />
@@ -136,8 +161,9 @@ export default function ExplorePage() {
                                     <p className="text-sm text-muted-foreground">Price</p>
                                     <p className="font-bold">{ethers.formatEther(nft.price)} ETH</p>
                                 </div>
-                                <Button>
-                                    Buy Now
+                                <Button disabled={nft.owner == address || nft.seller == address} className="cursor-pointer" onClick={() => handleBuyNft(nft)}>
+                                    {nft.owner == address || nft.seller == address ? "You own this NFT" : "Buy Now"}
+                                    {buyingNFT && nft.tokenId == buyingNFT && <Loader2 className="h-4 w-4 animate-spin" />}
                                 </Button>
                             </div>
                         </div>

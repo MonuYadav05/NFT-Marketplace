@@ -5,6 +5,7 @@ import { contractAddress, abi } from '@/app/NFTMarketplace.json'
 import { parseEther } from 'viem'
 import { sepolia } from 'viem/chains'
 import { toast } from 'sonner'
+import { redirect } from 'next/navigation'
 
 export const useContract = () => {
   const { address, isConnected } = useAccount()
@@ -151,6 +152,34 @@ export const useContract = () => {
     }
   }
 
+  const buyNFT = async (userId: string, price: number) => {
+    try {
+      if (!price || isNaN(Number(price))) {
+        console.error('Invalid price:', price)
+        return toast.error('Invalid NFT price!')
+      }
+
+      const response = await writeContract(rainbowConfig, {
+        abi,
+        address: contractAddress as `0x${string}`,
+        functionName: 'executeSale',
+        args: [userId],
+        value: BigInt(price)
+      })
+      toast.success('NFT bought successfully! 🎉')
+      return {
+        success: true,
+        result: response
+      }
+    } catch (error) {
+      toast.error('Failed to buy NFT.')
+      return {
+        success: false,
+        error: error
+      }
+    }
+  }
+
   return {
     address,
     isConnected,
@@ -158,6 +187,7 @@ export const useContract = () => {
     getListPrice,
     createNft,
     getMyNfts,
-    updateListingPrice
+    updateListingPrice,
+    buyNFT
   }
 }

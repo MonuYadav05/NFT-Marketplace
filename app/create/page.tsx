@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Loader2, Upload } from "lucide-react";
 import { usePinata } from "@/hooks/usePinata";
 import { useContract } from "@/hooks/useContract";
 import { connect } from '@wagmi/core'
+import { redirect } from "next/navigation";
 
 export default function Create() {
     const [isUploading, setIsUploading] = useState(false);
@@ -23,23 +24,13 @@ export default function Create() {
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string>("");
     const { uploadFileToIpfs, uploadJsonToIpfs, } = usePinata();
-    const { getAllNfts, getListPrice, createNft, isConnected, getMyNfts } = useContract();
+    const { createNft, isConnected } = useContract();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setNftData((prev: any) => ({ ...prev, [name]: value }));
     };
 
-    // useEffect(() => {
-    //     async function getAllNFTs() {
-    //         const nfts = await getAllNfts();
-    //         const myNfts = await getMyNfts();
-    //         console.log("all nfts", nfts);
-    //         console.log("My nfts", myNfts);
-    //         console.log(isConnected);
-    //     }
-    //     getAllNFTs();
-    // }, [isConnected]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -87,7 +78,7 @@ export default function Create() {
             setNftData({ name: "", description: "", price: "" });
             setFile(null);
             setPreview("");
-
+            redirect("/marketplace")
         } catch (err) {
             console.log("Error uploading file to IPFS", err);
         } finally {
