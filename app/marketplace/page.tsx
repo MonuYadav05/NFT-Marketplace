@@ -81,7 +81,8 @@ export default function ExplorePage() {
             }
             else {
                 // @ts-ignore
-                toast.error(response?.error);
+                // toast.error(response?.error);
+                console.log("error in buying nft");
             }
         } catch (error) {
             console.log(error);

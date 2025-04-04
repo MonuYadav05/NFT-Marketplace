@@ -9,6 +9,7 @@ import { useContract } from "@/hooks/useContract";
 import axios from 'axios';
 import { NftCard } from "@/components/NftCard";
 import { ethers } from "ethers";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 // Mock user data
 const userData = {
@@ -22,7 +23,7 @@ const userData = {
 
 
 export default function ProfilePage() {
-    const { address, getMyNfts } = useContract();
+    const { address, getMyNfts, isConnected } = useContract();
     const [NFTS, setNFTS] = useState<any>(null);
 
     const fetchMetadata = async () => {
@@ -76,6 +77,15 @@ export default function ProfilePage() {
         return total;
     }
 
+    if (!isConnected) {
+        return <div className="flex items-center justify-center gap-3 min-h-screen">
+            <span className="text-xl">Please connect your wallet to view your profile
+            </span>
+            <ConnectButton />
+
+        </div>
+    }
+
     return (
         <div className="container mx-auto py-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -116,7 +126,7 @@ export default function ProfilePage() {
                 </Card>
 
                 {/* Main Content */}
-                {NFTS == null ? <div className="flex items-center mb-52 ml-24 w-[200px] justify-center gap-3 min-h-screen">
+                {NFTS == null ? <div className="flex items-center  ml-24 w-[700px] justify-center gap-3 min-h-screen">
                     <Loader2 className="h-12 w-12 animate-spin" />
                     <span className="text-xl">Fetching Your NFTs from the Blockchain...</span>
                 </div> : <NftCard NFTS={NFTS} />

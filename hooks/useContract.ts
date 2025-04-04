@@ -153,6 +153,12 @@ export const useContract = () => {
   }
 
   const buyNFT = async (userId: string, price: number) => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet first!')
+      console.error('Wallet is not connected')
+      return
+    }
+
     try {
       if (!price || isNaN(Number(price))) {
         console.error('Invalid price:', price)
@@ -172,7 +178,7 @@ export const useContract = () => {
         result: response
       }
     } catch (error) {
-      toast.error('Failed to buy NFT.')
+      toast.error('Failed to buy NFT Maybe you dont have enough balance')
       return {
         success: false,
         error: error
