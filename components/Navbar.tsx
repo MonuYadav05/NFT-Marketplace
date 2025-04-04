@@ -16,7 +16,7 @@ export function Navbar() {
     }, [isConnected, address])
 
     return (
-        <nav className="border-b sticky top-0 z-50 bg-background/40 blur-md transparent ">
+        <nav className="border-b sticky top-0 z-50 bg-background/40 backdrop-blur-sm transparent ">
             <div className="flex h-16 items-center px-4 max-w-7xl mx-auto">
                 <div className="flex items-center justify-end space-x-4">
                     <Link href="/" className="flex items-center space-x-2">
