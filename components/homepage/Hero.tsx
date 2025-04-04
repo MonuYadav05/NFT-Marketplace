@@ -14,7 +14,7 @@ const Hero = () => {
                     world's most innovative NFT marketplace
                 </p>
                 <div className="flex justify-center gap-4">
-                    <Link href="/explore">
+                    <Link href="/marketplace">
                         <Button size="lg" variant="secondary">
                             Explore NFTs
                         </Button>
