@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ export default function ExplorePage() {
     const [filteredNFTs, setFilteredNFTs] = useState<any>([]);
     const [buyingNFT, setBuyingNFT] = useState(null);
     const router = useRouter();
+    const nftCacheRef = useRef<any>(null);
 
     const fetchMetadata = async () => {
         try {
@@ -49,10 +50,15 @@ export default function ExplorePage() {
     }
 
     useEffect(() => {
+        if (nftCacheRef.current) {
+            console.log(nftCacheRef.current);
+            setNFTS(nftCacheRef.current);
+            return;
+        }
         (async () => {
             const allNfts = await fetchMetadata();
+            nftCacheRef.current = allNfts;
             setNFTS(allNfts);
-            // console.log(allNfts)
         })();
 
     }, [])

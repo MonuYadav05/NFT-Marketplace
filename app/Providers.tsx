@@ -10,11 +10,25 @@ import React from 'react';
 import { Toaster } from "@/components/ui/sonner";
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+const alchemyId = process.env.NEXT_PUBLIC_SEPOLIA_URL;
+console.log(alchemyId);
 
 export const rainbowConfig = getDefaultConfig({
     appName: "NFT Marketplace",
     projectId: `${projectId}`,
-    chains: [sepolia],
+    chains: [
+        {
+            ...sepolia,
+            rpcUrls: {
+                default: {
+                    http: [`${alchemyId}`]
+                },
+                public: {
+                    http: [`${alchemyId}`]
+                },
+            },
+        },
+    ],
     ssr: true,
 });
 

@@ -5,7 +5,6 @@ import { contractAddress, abi } from '@/app/NFTMarketplace.json'
 import { parseEther } from 'viem'
 import { sepolia } from 'viem/chains'
 import { toast } from 'sonner'
-import { redirect } from 'next/navigation'
 
 export const useContract = () => {
   const { address, isConnected } = useAccount()
@@ -17,6 +16,7 @@ export const useContract = () => {
       abi: abi,
       functionName: 'getAllNFTs'
     })
+
     if (!nfts || !Array.isArray(nfts)) {
       console.log('nfts is not array')
       return []
@@ -27,7 +27,8 @@ export const useContract = () => {
           abi,
           address: contractAddress as `0x${string}`,
           functionName: 'tokenURI',
-          args: [nft.tokenId]
+          args: [nft.tokenId],
+          chainId: 11155111
         })
         return { ...nft, tokenURI }
       })
